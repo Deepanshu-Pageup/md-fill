@@ -8,6 +8,13 @@ import puppeteer from "puppeteer";
 import dbConnection from "@/lib/dbConnection";
 import ApplicationModel from "@/model/Application";
 import type { IApplication } from "@/types";
+import TemplateModel from "@/model/Template";
+
+const TEMPLATE_NAME = "StandardTemplate";
+const DEFAULT_TEMPLATE = `# Application
+**Name:** {{name}}
+**Phone:** {{phoneno}}
+> {{address}}`;
 
 export const generatePdf = async (data: IApplication): Promise<string> => {
   await dbConnection();
@@ -15,17 +22,14 @@ export const generatePdf = async (data: IApplication): Promise<string> => {
 
   try {
     await ApplicationModel.create(data);
-    const candidateTemplatePaths = [
-      path.join(process.cwd(), "templates", "template.md"),
-      path.join(process.cwd(), "templates", "application.md"),
-      path.join(process.cwd(), "src", "templates", "application.md"),
-    ];
-    const templatePath = candidateTemplatePaths.find((p) => fs.existsSync(p));
-    if (!templatePath) {
-      throw new Error(`Template file not found. Checked: ${candidateTemplatePaths.join(", ")}`);
-    }
-    const templateSource = fs.readFileSync(templatePath, "utf-8");
-
+    
+    const templateDoc =
+      (await TemplateModel.findOne({ name: TEMPLATE_NAME })) ??
+      (await TemplateModel.create({
+        name: TEMPLATE_NAME,
+        content: DEFAULT_TEMPLATE,
+      }));
+    const templateSource = templateDoc.content;
     const template = Handlebars.compile(templateSource);
     const filledMarkdown = template(data);
 
