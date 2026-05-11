@@ -9,7 +9,13 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@uiw/react-md-editor": "^4.1.0",
+    "handlebars": "^4.7.9",
+    "marked": "^18.0.3",
+    "mongoose": "^9.6.2",
     "next": "16.2.6",
+    "next-remove-imports": "^1.0.13",
+    "puppeteer": "^24.43.0",
     "react": "19.2.4",
     "react-dom": "19.2.4"
   },
